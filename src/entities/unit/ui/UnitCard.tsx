@@ -16,7 +16,7 @@ export const UnitCard: React.FC<Props> = ({
   onUlt,
   className,
 }) => {
-  const { id, name, alive, hp, hpMax, shield = 0, charge = 0, img } = unit;
+  const { id, name, alive, hp, hpMax, charge = 0, img } = unit;
 
   const hpPct = Math.max(
     0,
