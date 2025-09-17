@@ -1,15 +1,19 @@
+// pages/Home/index.tsx
 import { Link } from "react-router-dom";
-import { Card } from "../../shared/ui/Card";
 import { Chip } from "../../shared/ui/Chip";
-import { STAGES } from "../../entities/stage/model/stages";
+import { Card } from "../../shared/ui/Card";
 import { CollectionGrid } from "../../widgets/CollectionGrid/CollectionGrid";
-import type { RouterProps } from "../router";
+import { useMeState } from "../../features/me/model/useMeState";
+import { useStages } from "../../features/stage/model/useStage";
 
-const Home = ({
-  crystal,
-  party,
-  collection,
-}: Pick<RouterProps, "crystal" | "party" | "collection">) => {
+export default function Home() {
+  const { data: me } = useMeState();
+  const { data: stages } = useStages();
+  const crystal = me?.crystal ?? 0;
+  const party = me?.party ?? [];
+  const collection = me?.collection ?? [];
+  const currentStageName = stages?.[0]?.name ?? "스테이지 로딩중…";
+
   return (
     <div className="mx-auto max-w-5xl p-6 text-zinc-200">
       <header className="mb-6 flex items-center justify-between">
@@ -41,7 +45,7 @@ const Home = ({
         <Card title="스테이지" desc="다음 지역으로 이동합니다.">
           <div className="flex items-center gap-2">
             <button className="btn-sub">◀ 이전</button>
-            <Chip>{STAGES[0].name}</Chip>
+            <Chip>{currentStageName}</Chip>
             <button className="btn-sub">다음 ▶</button>
           </div>
         </Card>
@@ -49,10 +53,13 @@ const Home = ({
 
       <section className="mt-8">
         <h2 className="mb-2 text-lg font-semibold">보유 마족</h2>
-        <CollectionGrid units={collection} onClick={() => {}} party={party} />
+        <CollectionGrid
+          // onClick은 파티 페이지에서만 쓰므로 noop
+          units={collection}
+          onClick={() => {}}
+          party={party}
+        />
       </section>
     </div>
   );
-};
-
-export default Home;
+}

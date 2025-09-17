@@ -22,8 +22,8 @@ export const SidePanel: React.FC<Props> = ({
 
       {/* ✅ auto-fit + minmax 로 카드가 자동 줄바꿈/축소 */}
       <div className="grid gap-2 grid-cols-[repeat(auto-fit,minmax(140px,1fr))]">
-        {units.map((u) => (
-          <UnitCard key={u.id} unit={u} isPlayer={isPlayer} onUlt={onUlt} />
+        {units.map((u, idx) => (
+          <UnitCard key={idx} unit={u} isPlayer={isPlayer} onUlt={onUlt} />
         ))}
       </div>
     </section>

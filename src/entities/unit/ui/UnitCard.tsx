@@ -1,7 +1,7 @@
-// entities/unit/ui/UnitCard.tsx
 import React from "react";
 import clsx from "clsx";
 import type { UnitRuntime } from "../../unit/model/types";
+import { toAbs } from "../../../shared/lib/toAbs";
 
 type Props = {
   unit: UnitRuntime;
@@ -31,7 +31,7 @@ export const UnitCard: React.FC<Props> = ({
         {/* 폭은 clamp, 세로는 비율 고정 → 화면이 줄면 같이 줄어듦 */}
         <div className="relative mx-auto w-[clamp(120px,22vw,160px)] aspect-[2/3]">
           <img
-            src={img}
+            src={toAbs(img)}
             alt={name}
             className={clsx(
               "absolute inset-0 h-full w-full object-cover",

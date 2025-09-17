@@ -1,50 +1,34 @@
 import { Link } from "react-router-dom";
-import { useSummon } from "../../features/summon/model/useSummon";
+import { useMeState } from "../../features/me/model/useMeState";
+import { useSummonOne } from "../../features/summon/model/useSummon";
+import { useMemo, useState } from "react";
+import type { OwnedUnit } from "../../entities/unit/model/types";
 import { Chip } from "../../shared/ui/Chip";
-import type { RouterProps } from "../router";
 import { Card } from "../../shared/ui/Card";
 import { CollectionGrid } from "../../widgets/CollectionGrid/CollectionGrid";
-import { useMemo, useState } from "react";
-import type { UnitBase } from "../../entities/unit/model/types";
+import { toAbs } from "../../shared/lib/toAbs";
 
 function formatRarity(r: number) {
   return "★".repeat(r);
 }
 
-export default function Summon({
-  crystal,
-  setCrystal,
-  setCollection,
-  collection,
-  pushLog,
-  party,
-}: Pick<
-  RouterProps,
-  | "crystal"
-  | "setCrystal"
-  | "setCollection"
-  | "collection"
-  | "pushLog"
-  | "party"
->) {
-  const { summonOne } = useSummon(crystal, setCrystal, setCollection, pushLog);
-  const [lastSummoned, setLastSummoned] = useState<UnitBase | null>(null);
+export default function Summon() {
+  const { data: me } = useMeState();
+  const { mutate: summonOne, isPending } = useSummonOne();
+  const [lastSummoned, setLastSummoned] = useState<OwnedUnit | null>(null);
+
+  const crystal = me?.crystal ?? 0;
+  const party = me?.party ?? [];
+  const collection = me?.collection ?? [];
+
   const isNew = useMemo(
     () =>
       lastSummoned ? !collection.some((u) => u.id === lastSummoned.id) : false,
-    // 주의: lastSummoned가 set된 같은 tick에는 collection이 아직 이전 상태일 수 있음.
-    // "NEW"판정은 summon 전에 snapshot을 넘겨서 계산하는 게 더 정확하지만,
-    // 여기서는 간단히 after-render 기준으로 동작하도록 둔다.
     [lastSummoned, collection]
   );
 
-  const handleSummon = () => {
-    const res = summonOne();
-    if (res) setLastSummoned(res);
-  };
-
   return (
-    <div className="mx-auto max-w-3xl p-6 text-zinc-200">
+    <div className="mx-auto max-w-5xl p-6 text-zinc-200">
       <header className="mb-6 flex items-center justify-between">
         <h2 className="text-2xl font-bold">🜁 소환</h2>
         <div className="flex items-center gap-3">
@@ -56,16 +40,21 @@ export default function Summon({
       </header>
 
       <Card title="소환" desc="소환 1회당 결정 100개가 필요합니다.">
-        <button className="btn" disabled={crystal < 100} onClick={handleSummon}>
+        <button
+          className="btn"
+          disabled={crystal < 100 || isPending}
+          onClick={() =>
+            summonOne(undefined, { onSuccess: (d) => setLastSummoned(d.unit) })
+          }
+        >
           한 번 소환 (100)
         </button>
 
-        {/* 소환 결과 배너 */}
         {lastSummoned && (
           <div className="mt-4 flex items-center gap-4 rounded-2xl border border-emerald-700/40 bg-emerald-900/20 p-4">
             <div className="relative h-16 w-16 overflow-hidden rounded-xl border border-black/30 shadow-[0_0_0_1px_rgba(0,0,0,0.3)]">
               <img
-                src={lastSummoned.img}
+                src={toAbs(lastSummoned.img)}
                 alt={lastSummoned.name}
                 className="h-[100px] w-[100px] object-cover object-center brightness-95"
               />
@@ -78,7 +67,6 @@ export default function Summon({
                   {lastSummoned.name}
                 </div>
                 <Chip>{formatRarity(lastSummoned.rarity)}</Chip>
-                {/* NEW 뱃지 (간단 판정) */}
                 {isNew && <Chip>NEW</Chip>}
               </div>
               <div className="mt-1 text-xs text-zinc-400">

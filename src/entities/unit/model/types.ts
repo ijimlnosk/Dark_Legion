@@ -1,29 +1,55 @@
-export type Tribe = "언데드" | "악마" | "야수" | "인간";
-export type Role = "탱커" | "딜러" | "마법사";
-
-export interface UnitBase {
-  id: string;
+export type UnitBase = {
+  id: string; // unitId
   name: string;
   emoji: string;
-  tribe: Tribe;
-  role: Role;
-  rarity: 1 | 2 | 3 | 4 | 5;
+  tribe: "언데드" | "악마" | "야수" | "인간";
+  role: "탱커" | "딜러" | "마법사";
+  rarity: number;
   hpMax: number;
   atk: number;
   speed: number;
-  ultName: string;
-  ultDesc: string;
+  level: number;
+  ultName?: string | null;
+  ultDesc?: string | null;
   img: string;
-}
+};
 
-export interface UnitRuntime extends UnitBase {
+// 서버가 주는 컬렉션 아이템(인벤토리 id 포함)
+export type OwnedUnit = UnitBase & {
+  id: string;
+  name: string;
+  emoji: string;
+  tribe: string;
+  role: string;
+  rarity: number;
+  img: string;
+  hpMax: number;
+  atk: number;
+  speed: number;
+  ultName: string | null;
+  ultDesc: string | null;
+  inventoryId: string;
+  level: number;
+};
+
+// me/state 응답
+export type MeState = {
+  crystal: number;
+  party: string[]; // Inventory.id[]
+  collection: OwnedUnit[];
+};
+
+export type UnitRuntime = {
+  id: string;
+  blueprintId: string;
+  name: string;
+  emoji: string;
   hp: number;
-  charge: number; // 0..100
+  hpMax: number;
+  atk: number;
+  speed: number;
+  charge: number;
   alive: boolean;
-  shield: number; // 피해 흡수
-  team: "아군" | "적";
-}
-export interface UnitInstance {
-  instanceId: string; // uuid/nanoid
-  base: UnitBase; // 원본 블루프린트
-}
+  img: string;
+  side: "아군" | "적";
+};

@@ -5,19 +5,20 @@ import Home from "./dark-legion/Home.tsx";
 import Summon from "./dark-legion/Summon.tsx";
 import Party from "./dark-legion/Party.tsx";
 import Battle from "./dark-legion/Battle.tsx";
+import Login from "./dark-legion/Login.tsx";
 
-export interface RouterProps {
-  crystal: number;
-  setCrystal: React.Dispatch<React.SetStateAction<number>>;
-  collection: UnitBase[];
-  setCollection: React.Dispatch<React.SetStateAction<UnitBase[]>>;
-  party: string[];
-  setParty: React.Dispatch<React.SetStateAction<string[]>>;
-  log: string[];
-  pushLog: (s: string) => void;
-}
+// export interface RouterProps {
+//   crystal: number;
+//   setCrystal: React.Dispatch<React.SetStateAction<number>>;
+//   collection: UnitBase[];
+//   setCollection: React.Dispatch<React.SetStateAction<UnitBase[]>>;
+//   party: string[];
+//   setParty: React.Dispatch<React.SetStateAction<string[]>>;
+//   log: string[];
+//   pushLog: (s: string) => void;
+// }
 
-const AppRouter = (props: RouterProps) => {
+const AppRouter = () => {
   return (
     <BrowserRouter>
       <StyleInjector />
@@ -47,10 +48,11 @@ const AppRouter = (props: RouterProps) => {
       </nav>
 
       <Routes>
-        <Route path="/" element={<Home {...props} />} />
-        <Route path="/summon" element={<Summon {...props} />} />
-        <Route path="/party" element={<Party {...props} />} />
-        <Route path="/battle" element={<Battle {...props} />} />
+        <Route path="/login" element={<Login />} /> {/* 이건 그대로 */}
+        <Route path="/" element={<Home />} />
+        <Route path="/summon" element={<Summon />} />
+        <Route path="/party" element={<Party />} />
+        <Route path="/battle" element={<Battle />} />
       </Routes>
 
       <footer className="mt-16 border-t border-zinc-800/70 bg-black/40 py-6 text-center text-xs text-zinc-500">
