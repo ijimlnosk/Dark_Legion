@@ -105,10 +105,12 @@ export const useBattle = (pushLog: (s: string) => void) => {
 
     endedRef.current = false;
     waveRef.current = 0;
+    // 이전 루프 정지 및 상태 초기화
+    stopLoop();
+    setResult(null);
+    setWaveIdx(0);
     setPlayerUnits(players);
     setEnemyUnits(enemies);
-    setWaveIdx(0);
-    setResult(null);
     pushLog(`▶ ${stage.name} 전투 시작!`);
   };
 
@@ -139,6 +141,7 @@ export const useBattle = (pushLog: (s: string) => void) => {
     const wave = stage.waves[nextWave] ?? [];
     await ensureBlueprints(wave);
     const enemies = wave.map((eid) => cloneRuntime(getBlueprint(eid), "적"));
+    // 웨이브 교체는 원자적으로 처리
     setEnemyUnits(enemies);
     setWaveIdx(nextWave);
     pushLog(`— 웨이브 ${nextWave + 1} 시작 —`);
@@ -154,6 +157,10 @@ export const useBattle = (pushLog: (s: string) => void) => {
       const eNow = enemyRef.current.map((x) => ({ ...x }));
 
       // 종료 판정
+      // 전투가 시작되기 전에 빈 상태로 판정되는 것을 방지
+      if (pNow.length === 0 || eNow.length === 0) {
+        return;
+      }
       if (getAlive(pNow).length === 0) {
         endBattleOnce({
           win: false,
@@ -207,7 +214,9 @@ export const useBattle = (pushLog: (s: string) => void) => {
       }
     };
 
-    tickRef.current = window.setInterval(step, 800);
+    if (!tickRef.current) {
+      tickRef.current = window.setInterval(step, 800);
+    }
   };
 
   const castUlt = (casterId: string) => {

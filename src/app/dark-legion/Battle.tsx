@@ -1,5 +1,5 @@
-import { useEffect, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import { useEffect, useRef, useState } from "react";
+import { useLocation, useNavigate } from "react-router-dom";
 import { useMeState } from "../../features/me/model/useMeState";
 import { useStages } from "../../features/stage/model/useStage";
 import { useBattleFinish } from "../../features/battle/model/useBattleFinish";
@@ -10,12 +10,14 @@ import ResultModal from "../../widgets/ResultModal/ResultModal";
 
 export default function Battle() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { data: me } = useMeState();
   const { data: stages } = useStages();
   const { mutateAsync: finishBattle } = useBattleFinish();
 
   const {
     stageIdx,
+    setStageIdx,
     waveIdx,
     playerUnits,
     enemyUnits,
@@ -28,18 +30,30 @@ export default function Battle() {
   } = useBattle((msg) => console.log(msg));
 
   const [modalOpen, setModalOpen] = useState(false);
+  const startedRef = useRef(false);
 
   useEffect(() => {
-    if (!stages || !me) return;
-    const stage = stages[stageIdx % stages.length];
+    (async () => {
+      if (!stages || !me) return;
+      // 결과 모달이 열려있거나 이미 시작했다면 재시작 금지
+      if (modalOpen || startedRef.current) return;
 
-    const partyUnits = me.party
-      .map((invId) => me.collection.find((c) => c.inventoryId === invId))
-      .filter((u): u is NonNullable<typeof u> => Boolean(u));
+      const passedIdx = (location.state as { stageIdx?: number } | null)
+        ?.stageIdx;
+      const nextStageIdx = Number.isInteger(passedIdx)
+        ? (passedIdx as number)
+        : stageIdx;
+      setStageIdx(nextStageIdx);
+      const stage = stages[nextStageIdx % stages.length];
+      const partyUnits = me.party
+        .map((invId) => me.collection.find((c) => c.inventoryId === invId))
+        .filter((u): u is NonNullable<typeof u> => Boolean(u));
 
-    startBattle(partyUnits, stage);
-    runLoop(stage);
-  }, [stages, me]);
+      startedRef.current = true;
+      await startBattle(partyUnits, stage);
+      runLoop(stage);
+    })();
+  }, [stages, me, modalOpen]);
 
   useEffect(() => {
     if (!result || !stages) return;
@@ -84,6 +98,7 @@ export default function Battle() {
         crystals={result?.crystals ?? 0}
         onClose={() => {
           setModalOpen(false);
+          startedRef.current = false;
           navigate("/");
         }}
       />

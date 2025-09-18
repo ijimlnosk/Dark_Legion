@@ -5,6 +5,7 @@ import Home from "./dark-legion/Home.tsx";
 import Summon from "./dark-legion/Summon.tsx";
 import Party from "./dark-legion/Party.tsx";
 import Battle from "./dark-legion/Battle.tsx";
+import ManualBattle from "./dark-legion/ManualBattle.tsx";
 import Login from "./dark-legion/Login.tsx";
 
 // export interface RouterProps {
@@ -43,6 +44,9 @@ const AppRouter = () => {
             <Link className="btn-sub" to="/battle">
               전투
             </Link>
+            <Link className="btn-sub" to="/manual">
+              수동전투
+            </Link>
           </div>
         </div>
       </nav>
@@ -53,6 +57,7 @@ const AppRouter = () => {
         <Route path="/summon" element={<Summon />} />
         <Route path="/party" element={<Party />} />
         <Route path="/battle" element={<Battle />} />
+        <Route path="/manual" element={<ManualBattle />} />
       </Routes>
 
       <footer className="mt-16 border-t border-zinc-800/70 bg-black/40 py-6 text-center text-xs text-zinc-500">

@@ -1,5 +1,6 @@
 // pages/Home/index.tsx
 import { Link } from "react-router-dom";
+import { useState } from "react";
 import { Chip } from "../../shared/ui/Chip";
 import { Card } from "../../shared/ui/Card";
 import { CollectionGrid } from "../../widgets/CollectionGrid/CollectionGrid";
@@ -9,10 +10,13 @@ import { useStages } from "../../features/stage/model/useStage";
 export default function Home() {
   const { data: me } = useMeState();
   const { data: stages } = useStages();
+  const [stageIdx, setStageIdx] = useState(0);
   const crystal = me?.crystal ?? 0;
   const party = me?.party ?? [];
   const collection = me?.collection ?? [];
-  const currentStageName = stages?.[0]?.name ?? "스테이지 로딩중…";
+  const total = stages?.length ?? 0;
+  const currentStageName =
+    total > 0 ? stages![stageIdx % total].name : "스테이지 로딩중…";
 
   return (
     <div className="mx-auto max-w-5xl p-6 text-zinc-200">
@@ -28,8 +32,8 @@ export default function Home() {
 
       <div className="grid gap-4 md:grid-cols-2">
         <Card title="던전 침공" desc="스테이지를 클리어하고 보상을 획득하세요.">
-          <Link className="btn" to="/battle">
-            스테이지 시작 1
+          <Link className="btn" to="/manual">
+            수동 전투 시작
           </Link>
         </Card>
         <Card title="마족 소환" desc="어둠의 결정 100개로 마족을 소환합니다.">
@@ -44,9 +48,21 @@ export default function Home() {
         </Card>
         <Card title="스테이지" desc="다음 지역으로 이동합니다.">
           <div className="flex items-center gap-2">
-            <button className="btn-sub">◀ 이전</button>
+            <button
+              className="btn-sub"
+              onClick={() =>
+                total > 0 && setStageIdx((i) => (i - 1 + total) % total)
+              }
+            >
+              ◀ 이전
+            </button>
             <Chip>{currentStageName}</Chip>
-            <button className="btn-sub">다음 ▶</button>
+            <button
+              className="btn-sub"
+              onClick={() => total > 0 && setStageIdx((i) => (i + 1) % total)}
+            >
+              다음 ▶
+            </button>
           </div>
         </Card>
       </div>
